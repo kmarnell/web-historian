@@ -52,8 +52,6 @@ exports.isUrlArchived = function(url, callback) {
 };
 
 exports.downloadUrls = function(urls) {
-  //takes in an array of urls
-  //read that array of urls
   for(var i = 0; i < urls.length; i++) {
     fs.writeFile(exports.paths.archivedSites + '/' + urls[i], data = '', (error) => {
       if(error){
@@ -62,5 +60,4 @@ exports.downloadUrls = function(urls) {
       console.log('File Saved!');
     })
   }
-  //write the files to archivedSites 
 };

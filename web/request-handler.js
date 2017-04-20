@@ -6,8 +6,8 @@ var http = require('../web/http-helpers.js');
 
 exports.handleRequest = function (req, res) {
   
-  if (req.method === 'GET' && req.url === '/') {
-    console.log(archive.paths.siteAssets)
+  if (req.method === 'GET') {
+    if(req.url === '/') {
     fs.readFile(archive.paths.siteAssets + '/index.html', (error, data) => {
       if (error) {
         res.writeHead(404, http.headers);
@@ -16,7 +16,7 @@ exports.handleRequest = function (req, res) {
         res.writeHead(200, http.headers);
         res.end(data);
       }
-    })
+    });      
   } else {
     fs.readFile(archive.paths.archivedSites + '/' + req.url, (error, data) => {
       if (error) {
@@ -26,19 +26,29 @@ exports.handleRequest = function (req, res) {
         res.writeHead(200, http.headers);
         res.end(data);
       }
-    })
-  } 
-
-  if (req.method === 'POST'){
+    });
+   }
+  } else if (req.method === 'POST'){
     var body = '';
     req.on('data', function(chunk) {
       body += chunk;
     })
     .on('end', function() {
-     //JSON.stringify(data);
-    })
-
-
+      body = body.slice(4);
+      fs.readFile(archive.paths.list, 'utf-8', (error, data) => {
+        if (error) {
+          console.log('Error!');
+        } else {
+          archive.isUrlInList(body, (exists) => {
+            if (!exists) {
+              archive.addUrlToList(body + '\n', function(){
+                res.writeHead(302, http.headers);
+                res.end();
+              });
+            }
+          });
+        }
+      }); 
+    });
   }
 };
-
