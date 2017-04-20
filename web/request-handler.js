@@ -4,16 +4,12 @@ var archive = require('../helpers/archive-helpers');
 var http = require('../web/http-helpers.js');
 // require more modules/folders here!
 
-// var sendResponse = function(res, data, statusCode) {
-//   statusCode = statusCode || 200;
-//   res.writeHead(statusCode, http.headers);
-//   res.end(JSON.stringify(data)); //???
-// };
-
-var actions = {
-  GET: function(req, res) {
-      fs.readFile(__dirname + '/public/index.html', 'utf-8', function(err, data) { //not bringing css along??
-      if(err) {
+exports.handleRequest = function (req, res) {
+  
+  if (req.method === 'GET' && req.url === '/') {
+    console.log(archive.paths.siteAssets)
+    fs.readFile(archive.paths.siteAssets + '/index.html', (error, data) => {
+      if (error) {
         res.writeHead(404, http.headers);
         res.end();
       } else {
@@ -21,34 +17,28 @@ var actions = {
         res.end(data);
       }
     })
-    
-},
-
-  POST: function(req, res) {
-    fs.writeFile(__dirname + '/sites.txt', '/' + req.url, function(err, data) {
-      if(err) {
-        console.log(err);
+  } else {
+    fs.readFile(archive.paths.archivedSites + '/' + req.url, (error, data) => {
+      if (error) {
+        res.writeHead(404, http.headers);
+        res.end();
       } else {
-        console.log(data);
+        res.writeHead(200, http.headers);
+        res.end(data);
       }
     })
+  } 
+
+  if (req.method === 'POST'){
+    var body = '';
+    req.on('data', function(chunk) {
+      body += chunk;
+    })
+    .on('end', function() {
+     //JSON.stringify(data);
+    })
+
+
   }
-}
-
-
-
-exports.handleRequest = function (req, res) {
-
-  if (req.method === "GET") {
-      actions[req.method](req, res);
-  } else {
-    if(req.method === "POST") {
-      actions[req.method](req, res);
-    }
-  }
-
-
-  //res.end(archive.paths.list); ????
-
 };
 
